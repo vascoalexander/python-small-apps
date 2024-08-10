@@ -5,4 +5,4 @@ tkinter to create GUI's.
 
 ## Apps (Finished)
 
-- pdf-merger
+- [pdf-merger](/pdf-merger/)
