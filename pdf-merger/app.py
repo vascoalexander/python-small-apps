@@ -6,6 +6,7 @@
 
 import tkinter as tk
 from merger import merge_pdf
+import ttkbootstrap as ttk
 
 def on_entry_click(event):
     """Deletes the Placeholder Text, changes font to green normal and
@@ -36,30 +37,32 @@ def merge_request():
     else:
         merge_pdf(path,filename)
 
-window = tk.Tk()
+window = ttk.Window(themename="darkly",title="PDF Merger")
 window.geometry("300x180")
 
 label_title = tk.Label(window,text="PDF Merger",font=("Arial",20,"bold"))
 label_title.pack()
 
-entry_path = tk.Entry(window,font=("Arial",12, "italic"),fg="gray",bg="black",width=300)
+entry_path = tk.Entry(window,font=("Arial",12, "italic"),fg="gray",bg="black",width=300,
+                      justify=tk.CENTER)
 entry_path.insert(0,"Enter path")
 entry_path.bind('<FocusIn>', on_entry_click)
 entry_path.bind('<FocusOut>', on_focus_out)
 entry_path.pack()
 
 label_path = tk.Label(window,fg="gray",font=("Arial",12,"italic"),
-                      text="path to your file")
+                      text="path to your file",pady=5)
 label_path.pack()
 
-entry_filename = tk.Entry(window,font=("Arial",12, "italic"),fg="gray",bg="black",width=300)
+entry_filename = tk.Entry(window,font=("Arial",12, "italic"),fg="gray",bg="black",width=300,
+                          justify=tk.CENTER)
 entry_filename.insert(0,"Output filename")
 entry_filename.bind('<FocusIn>', on_entry_click)
 entry_filename.bind('<FocusOut>', on_focus_out)
 entry_filename.pack()
 
 label_filename = tk.Label(window,fg="gray",font=("Arial",12,"italic"),
-                      text="output filename")
+                      text="name of the merged pdf-file",pady=5)
 label_filename.pack()
 
 merge_button = tk.Button(window,text="Merge Files",command=merge_request)

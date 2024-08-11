@@ -6,3 +6,4 @@ tkinter to create GUI's.
 ## Apps (Finished)
 
 - [pdf-merger](/pdf-merger/)
+- [password-generator](/password-generator/)
