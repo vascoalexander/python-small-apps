@@ -1,10 +1,16 @@
-# password-generator
+# A small app that generates passwords of variable length (8-32 chars) out of a
+# list of 92 chars. The user can copy the generated password to the clipboard.
+# The main generator function (generate_pw) in pw_generator.py can also be used as
+# standalone CLI script
+
 import tkinter as tk
 from tkinter import messagebox
 import ttkbootstrap as ttk
 from pw_generator import generate_pw
 
 def request_pw():
+    """Enables the entry box, calls the generate_pw function and inserts the
+    return into the entry box"""
     pw_entry.config(state="normal")
     pw_entry.delete(0,"end")
     pw_entry.config(fg="#00FF00")
@@ -12,6 +18,8 @@ def request_pw():
     pw_entry.insert(0,generate_pw(pw_length))
 
 def copy_to_clipboard():
+    """Copies the content of the entry box to the clipboard, warns the user if
+    no password has been generated"""
     new_pw = pw_entry.get()
     if new_pw == "new password":
         messagebox.showwarning(title="PW Generator", message="Generate a password first")
@@ -23,10 +31,6 @@ def copy_to_clipboard():
 window = ttk.Window(themename="vapor")
 window.geometry("250x130")
 window.resizable(False,False)
-
-# pw_length_entry = tk.Entry(window,fg="#00FF00",bg="black",width=10,
-#                     font=("Consolas", 16,"italic"))
-# pw_length_entry.pack()
 
 pw_entry = tk.Entry(window,width=150,font=("Consolas", 16,"italic"),justify=tk.CENTER)
 pw_entry.insert(0,"new password")
