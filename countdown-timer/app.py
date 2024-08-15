@@ -73,6 +73,7 @@ def clear_timer():
 
 window = tk.Tk()
 window.geometry("320x120")
+window.title("Countdown-Timer")
 window.configure(bg="black")
 
 window.time_in_seconds = 0
