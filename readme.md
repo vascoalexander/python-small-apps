@@ -10,3 +10,4 @@ tkinter to create GUI's.
 - [countdown-timer](/countdown-timer/)
 - [stopwatch](/stopwatch/)
 - [image-viewer](/image-viewer/)
+- [text-editor](/text-editor/)
