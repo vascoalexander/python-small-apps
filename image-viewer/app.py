@@ -4,6 +4,7 @@ from tkinter import filedialog
 from pathlib import Path
 import os
 from PIL import Image, ImageTk
+from tkinter import messagebox
 
 def load_images():
     """Load a list of images in the given path that have an extension defined
@@ -15,8 +16,10 @@ def load_images():
             image_path = os.path.join(path,file)
             image = Image.open(image_path)
             window.images.append(image)
-    
-    display_image(0)
+    if window.images:
+        display_image(0)
+    else:
+        messagebox.showinfo(title="Image Viewer", message=f"No displayable images in the folder!")
 
 def display_image(index):
     """Create a Label to display an image from a List of Images with the given
@@ -75,7 +78,7 @@ window.title("Image Viewer")
 window.config(background="#2b2b2b")
 
 window.images = []
-image_ext = (".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp", ".svg")
+image_ext = (".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp")
 
 image_next = tk.PhotoImage(file='./image-viewer/icons/next.png')
 image_prev = tk.PhotoImage(file='./image-viewer/icons/prev.png')
