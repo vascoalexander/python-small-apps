@@ -4,8 +4,6 @@
 # window attribute (window.time_in_seconds)
 
 import tkinter as tk
-from tkinter import font as tkFont
-import os
 
 def countdown_timer():
     """The functions gets the time_in_seconds from the window attribute, converts

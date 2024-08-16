@@ -9,3 +9,4 @@ tkinter to create GUI's.
 - [password-generator](/password-generator/)
 - [countdown-timer](/countdown-timer/)
 - [stopwatch](/stopwatch/)
+- [image-viewer](/image-viewer/)

@@ -1,84 +1,97 @@
 # image-viewer
 import tkinter as tk
-from tkinter import ttk, filedialog
-import ttkbootstrap as ttk
-import os
+from tkinter import filedialog
 from pathlib import Path
+import os
+from PIL import Image, ImageTk
 
-def view_image(image_file):
-    if window.image_files:
-        button_filedir.pack_forget()
-        label = tk.Label(window, image=image_file).pack(side="top")
-        create_close_button()
-        pass
+def load_images():
+    """Load a list of images in the given path that have an extension defined
+    in the image_ext List"""
+    window.images = []
+    path = os.path.abspath(filedialog.askdirectory(initialdir=Path.home()))
+    for file in os.listdir(path):
+        if file.lower().endswith(image_ext):
+            image_path = os.path.join(path,file)
+            image = Image.open(image_path)
+            window.images.append(image)
+    
+    display_image(0)
+
+def display_image(index):
+    """Create a Label to display an image from a List of Images with the given
+    Index"""
+    global current_image
+    current_image = window.images[index]
+    resized_image = resize_proportionally(current_image)
+    photo = ImageTk.PhotoImage(resized_image)
+
+    if hasattr(window, 'label_image'):
+        window.label_image.config(image=photo)
+        window.label_image.image = photo
+    else:
+        window.label_image = tk.Label(window, image=photo, bg="#2b2b2b")
+        window.label_image.image = photo
+        window.label_image.pack(side="top", fill=tk.BOTH, expand=True)
+    
+
+def resize_proportionally(image):
+    """Resize the image proportionally to fit in a fixed size of 800x600"""
+    original_width, original_height = image.size
+    if original_width > original_height:
+        aspect_ratio = original_height / original_width
+        target_height = int(800 * aspect_ratio)
+        resized_image = image.resize((800, target_height), Image.Resampling.LANCZOS)
+    elif original_height > original_width:
+        aspect_ratio = original_width / original_height
+        target_width = int(600 * aspect_ratio)
+        resized_image = image.resize((target_width, 600), Image.Resampling.LANCZOS)
+    else:
+        resized_image = image.resize((600, 600), Image.Resampling.LANCZOS)
+    
+    return resized_image
 
 def next_image():
-    pass
-def prev_image():
-    pass
-
-def open_dir():
-    filepath = filedialog.askdirectory(initialdir=Path.home(), title="Open Folder") 
-    for file in os.listdir(filepath):
-        if any(file.lower().endswith(ext) for ext in image_ext):
-            image_path = os.path.join(filepath, file)
-            image = tk.PhotoImage(file=image_path)
-            window.image_files.append(image)
-    print(window.image_files)
-    view_image(window.image_files[0])
-
-def close_dir():
-    window.image_files = []
-    create_close_button()
-
-
-def create_close_button():
-    if button_closedir.winfo_ismapped():
-        button_closedir.pack_forget()
-        button_filedir.pack(expand=True)
+    """Display the next image in the List"""
+    if window.images:
+        current_index = window.images.index(current_image)
+        if current_index < len(window.images) - 1:
+            display_image(current_index+1)
     else:
-        button_filedir.pack_forget()
-        button_closedir.pack(side="bottom")
+        return
 
-# def find_images():
-#     for file in os.listdir(image_dir):
-#         if any(file.lower().endswith(ext) for ext in image_ext):
-#             window.image_files.append(file)
-#     return window.image_files
+def prev_image():
+    """Display previous image in the List"""
+    if window.images:
+        current_index = window.images.index(current_image)
+        if current_index > 0:
+            display_image(current_index-1)
+    else:
+        return
 
-def open_file():
-    pass
+window = tk.Tk()
+window.geometry("850x650")
+window.title("Image Viewer")
+window.config(background="#2b2b2b")
 
-window = ttk.Window(themename="darkly")
-window.title("Tk Image Viewer")
-window.geometry("800x600")
+window.images = []
+image_ext = (".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp", ".svg")
 
-window.image_files = []
-image_ext = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.tiff', '.tif', '.webp']
+image_next = tk.PhotoImage(file='./image-viewer/icons/next.png')
+image_prev = tk.PhotoImage(file='./image-viewer/icons/prev.png')
 
-# frame_display = ttk.Frame(window, width=800, height=450)
-# frame_display.pack(expand=True, fill="both")
+button_open = tk.Button(
+    window, 
+    text="Open Folder", 
+    font=("Arial", 14),
+    command=load_images, 
+    bg="#474747", 
+    fg="white")
+button_next = tk.Button(window, image=image_next, command=next_image, bg="#474747")
+button_prev = tk.Button(window, image=image_prev, command=prev_image, bg="#474747")
 
-#placeholder_slides_path = os.path.join(image_dir,"placeholder_120x120.png")
-
-#for i in range(7):
-#    image = tk.PhotoImage(file=placeholder_slides_path)
-#    image_files.append(image)
-#    tk.Label(frame_display,image=image).pack(side="left")
-
-button_filedir = ttk.Button(window, text="Open folder", command=open_dir)
-button_filedir.pack(expand=True)
-button_closedir = ttk.Button(window, text="Close", command=close_dir)
-
-print(window.image_files)
-
-
-##for file in os.listdir(image_dir):
-##    image_path = os.path.join(image_dir, file)
-##    image = tk.PhotoImage(file=image_path)
-##    if "120x120" in image_path:
-##        image_files.append(image)
-##        tk.Label(frame_images,image=image).pack(side="left")
-        
+button_prev.pack(side="left")
+button_open.pack(side="bottom", padx=5,pady=5)
+button_next.pack(side="right")
 
 window.mainloop()
