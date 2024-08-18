@@ -1,12 +1,9 @@
 # image-viewer
 import tkinter as tk
-from tkinter import ttk
-import ttkbootstrap as ttk
-from tkinter import filedialog
+from tkinter import filedialog, messagebox
 from pathlib import Path
 import os
 from PIL import Image, ImageTk
-from tkinter import messagebox
 
 def load_images():
     """Load a list of images in the given path that have an extension defined
