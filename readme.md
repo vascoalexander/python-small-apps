@@ -11,4 +11,4 @@ tkinter to create GUI's.
 - [stopwatch](/stopwatch/)
 - [image-viewer](/image-viewer/)
 - [text-editor](/text-editor/)
-- [pdf-reader](/pdf-viewer/)
+- [pdf-viewer](/pdf-viewer/)
