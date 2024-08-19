@@ -14,31 +14,41 @@ def currency_convert(curr_from, curr_to, amount):
     converted_currency = api_response[curr_to] * amount 
     return converted_currency
 
+def update_label_from(event):
+    selected_currency = currency_from.get()
+    label_from.configure(text=currency_list[selected_currency])
+
+def update_label_to(event):
+    selected_currency = currency_to.get()
+    label_to.configure(text=currency_list[selected_currency])
+
 window = ttk.Window(themename="flatly")
 window.title("Currency Converter")
 window.geometry("600x400")
 
-currencies = ['eur', 'usd', 'frf', 'gbp', 'trl', 'rub', 'cny', 'aud', 'jpy', 
-              'chf','btc', 'eth', 'usdt', 'xau']
-currency_list = requests.get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json').json()
+currencies = requests.get('https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies.json').json()
+currency_list = {value: key for key, value in currencies.items()}
 
-currencies_fullname = []
-for item in currencies:
-    full_name = currency_list[item]
-    currencies_fullname.append(full_name)
+# widgets
+currency_from = tk.StringVar(value='Euro')
+currency_to = tk.StringVar(value='US Dollar')
+combobox_from = ttk.Combobox(window, values=list(currency_list.keys()), textvariable=currency_from)
+combobox_to = ttk.Combobox(window, values=list(currency_list.keys()), textvariable=currency_to)
 
-# widget
-currency = tk.StringVar(value=currencies_fullname[0])
-combobox = ttk.Combobox(window, textvariable=currency)
-combobox['values'] = currencies_fullname
+label_from = ttk.Label(window)
+label_to = ttk.Label(window)
 
-entry_amount = ttk.Entry(window)
+# events
+combobox_from.bind("<<ComboboxSelected>>", update_label_from)
+combobox_from.bind("<Return>", update_label_from)
+combobox_to.bind("<<ComboboxSelected>>", update_label_to)
+combobox_to.bind("<Return>", update_label_to)
 
-label_currency = ttk.Label(window, textvariable=currency)
 # layout
-combobox.pack()
-entry_amount.pack()
-label_currency.pack()
+combobox_from.pack()
+combobox_to.pack()
+label_from.pack()
+label_to.pack()
 
 # run
 window.mainloop()
