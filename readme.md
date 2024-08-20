@@ -12,3 +12,4 @@ tkinter to create GUI's.
 - [image-viewer](/image-viewer/)
 - [text-editor](/text-editor/)
 - [pdf-viewer](/pdf-viewer/)
+- [currency-converter](/currency-converter/)
