@@ -86,20 +86,53 @@ currency_to = tk.StringVar(value='US Dollar')
 currency_amount = tk.IntVar(value=0)
 
 # top
-label_title = ttk.Label(frame_top, text='Currency Converter', font=('Arial', 24))
+label_title = ttk.Label(
+    frame_top, 
+    text='Currency Converter', 
+    font=('Arial', 24))
 
 # middle
-label_from = ttk.Label(frame_middle, text='convert from', font=('Arial', 14))
-combobox_from = ttk.Combobox(frame_middle, values=list(currency_list_reversed.keys()), textvariable=currency_from, state='readonly')
-label_input = ttk.Label(frame_middle, text='eur', font=('Arial', 14))
-entry_input = ttk.Entry(frame_middle, textvariable=currency_amount, justify='center')
-label_to = ttk.Label(frame_middle, text='convert to', font=('Arial', 14))
-combobox_to = ttk.Combobox(frame_middle, values=list(currency_list_reversed.keys()), textvariable=currency_to, state='readonly')
+label_from = ttk.Label(
+    frame_middle, 
+    text='convert from', 
+    font=('Arial', 14))
+combobox_from = ttk.Combobox(
+    frame_middle, 
+    values=list(currency_list_reversed.keys()), 
+    textvariable=currency_from, 
+    state='readonly')
+label_input = ttk.Label(
+    frame_middle, 
+    text='eur', 
+    font=('Arial', 14))
+entry_input = ttk.Entry(
+    frame_middle, 
+    textvariable=currency_amount, 
+    justify='center')
+label_to = ttk.Label(
+    frame_middle, 
+    text='convert to', 
+    font=('Arial', 14))
+combobox_to = ttk.Combobox(
+    frame_middle, 
+    values=list(currency_list_reversed.keys()), 
+    textvariable=currency_to, 
+    state='readonly')
 
 # bottom
-button_submit = ttk.Button(frame_bottom, text='Submit', command=lambda: currency_convert(None))
-label_output = ttk.Label(frame_bottom, text='usd', font=('Arial', 14))
-entry_output = ttk.Entry(frame_bottom, bootstyle="info", text='test', justify='center')
+button_submit = ttk.Button(
+    frame_bottom, 
+    text='Submit', 
+    command=lambda: currency_convert(None))
+label_output = ttk.Label(
+    frame_bottom, 
+    text='usd', 
+    font=('Arial', 14))
+entry_output = ttk.Entry(
+    frame_bottom, 
+    bootstyle="info", 
+    text='test', 
+    justify='center')
 
 # events
 combobox_from.bind('<<ComboboxSelected>>', update_label_input)
