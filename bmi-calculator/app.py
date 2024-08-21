@@ -82,7 +82,7 @@ button_submit = ttk.Button(frame_top, text='Submit', command=calculate_bmi)
 button_reset = ttk.Button(frame_top, text='Reset', command=reset)
 label_bmi = ttk.Label(frame_bottom, text=f'Your BMI: ', font=('Arial', 12))
 label_result = ttk.Label(frame_bottom, text=0.0, font=('Arial', 12, 'bold'))
-label_category_text = ttk.Label(frame_bottom, text=f"According to the WHO Definition your BMI-Category is: ")
+label_category_text = ttk.Label(frame_bottom, text=f"According to the WHO Definition, your BMI-Category is: ")
 label_category = ttk.Label(frame_bottom, text='None', font=('Arial',12, "bold"))
 
 # layout
