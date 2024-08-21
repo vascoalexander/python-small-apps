@@ -13,3 +13,4 @@ tkinter to create GUI's.
 - [text-editor](/text-editor/)
 - [pdf-viewer](/pdf-viewer/)
 - [currency-converter](/currency-converter/)
+- [bmi-calculator](/bmi-calculator/)
