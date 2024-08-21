@@ -55,6 +55,12 @@ def bmi_category(bmi):
         color = 'darkred'
     return bmi_category, color
 
+def entry_focus_out(event):
+    if entry_height.get() == '':
+        entry_height.insert(0, 0)
+    if entry_weight.get() == '':
+        entry_weight.insert(0, 0)
+
 # setup
 window = ttk.Window(themename='darkly')
 window.title('BMI-Calculator')
@@ -95,6 +101,12 @@ label_bmi.grid(row=0,column=0, padx=(0,5), sticky='e')
 label_result.grid(row=0, column=1, sticky='w')
 label_category_text.grid(row=1,columnspan=2)
 label_category.grid(row=2, column=0, columnspan=2)
+
+# events
+entry_height.bind('<FocusIn>', lambda event: entry_height.delete(0, tk.END))
+entry_height.bind('<FocusOut>', entry_focus_out)
+entry_weight.bind('<FocusIn>', lambda event: entry_weight.delete(0, tk.END))
+entry_weight.bind('<FocusOut>', entry_focus_out)
 
 # run
 window.mainloop()
