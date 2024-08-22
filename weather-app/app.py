@@ -2,15 +2,15 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 import ttkbootstrap as ttk
-import requests
-import json
+from timezonefinder import TimezoneFinder
+import json, requests
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from urllib.request import urlopen
+from PIL import ImageTk
 
 with open('./weather-app/api.json', 'r') as fobj:
     API_key = json.load(fobj)['api_key']
-
-def kelvin_to_celsius(kelvin):
-    celsius = round((kelvin - 273.15), 2)
-    return celsius
 
 def wind_direction_to_compass(degree):
     directions = [
@@ -20,60 +20,91 @@ def wind_direction_to_compass(degree):
     index = round(degree / 22.5) % 16
     return directions[index]
 
-def get_location(city, limit=1):
-    location_string = f"http://api.openweathermap.org/geo/1.0/direct?q={city}&limit={limit}&appid={API_key}"
-    response = requests.get(location_string).json()
-    location = {}
-    location['lat'] = response[0]['lat']
-    location['lon'] = response[0]['lon']
-    return location
-    
-def get_weather(city):
-    lat = get_location(city)['lat']
-    lon = get_location(city)['lon']
-    weather_string = f"https://api.openweathermap.org/data/2.5/weather?lat={lat}&lon={lon}&appid={API_key}"
-    weather = requests.get(weather_string).json()
-    return weather
-
-def get_weather_condition(city, condition):
-    if condition == 'description':
-        return get_weather(city)['weather'][0]['description']
-    elif condition == 'temp':
-        return kelvin_to_celsius(get_weather(city)['main']['temp'])
-    elif condition == 'feels_like':
-        return kelvin_to_celsius(get_weather(city)['main']['feels_like'])
-    elif condition == 'humidity':
-        return get_weather(city)['main']['humidity']
-    elif condition == 'pressure':
-        return get_weather(city)['main']['pressure']
-    elif condition == 'wind_speed':
-        return get_weather(city)['wind']['speed']
-    elif condition == 'wind_direction':
-        return wind_direction_to_compass(get_weather(city)['wind']['deg'])
-    elif condition == 'clouds':
-        return get_weather(city)['clouds']['all']
-
 def update_labels(event):
-    print('Labels have been updated')
+    ow_api = update_api_data()
+    data = update_data(ow_api)
+    label_test.configure(text=data)
+    label_city.configure(text=f"{city.get()}, {data['country']}")
+    weather_image = get_weather_image(data)
+    label_weather_image.configure(image=weather_image)
+    label_weather_image.image = weather_image
+
+def update_api_data():
+    ow_api_call = f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
+    return requests.get(ow_api_call).json()
+
+def update_data(ow_api):
+    data['lon'] = ow_api['coord']['lon']
+    data['lat'] = ow_api['coord']['lat']
+    data['country'] = ow_api['sys']['country']
+    data['datetime'] = get_datetime(ow_api)
+    data['weather_id'] = ow_api['weather'][0]['id']
+    data['weather_desc'] = ow_api['weather'][0]['description']
+    data['weather_icon'] = ow_api['weather'][0]['icon']
+    data['temp'] = ow_api['main']['temp']
+    data['feels_like'] = ow_api['main']['feels_like']
+    data['pressure'] = ow_api['main']['pressure']
+    data['humidity'] = ow_api['main']['humidity']
+    data['wind_speed'] = ow_api['wind']['speed']
+    data['wind_direction'] = wind_direction_to_compass(ow_api['wind']['deg'])
+    return data
+
+def get_datetime(api_response):
+    tz_obj = TimezoneFinder()
+    timezone = tz_obj.timezone_at(lng=data['lon'],lat=data['lat'])
+    time = datetime.now(ZoneInfo(timezone))
+    timeformat_date = time.strftime("%b %d, %H:%M (%Z)")
+    return timeformat_date
+
+def get_weather_image(data):
+    image_url = f"https://openweathermap.org/img/wn/{data['weather_icon']}@2x.png"
+    image = urlopen(image_url)
+    weather_image = ImageTk.PhotoImage(data=image.read())
+    print(image_url)
+    return weather_image
 
 # setup
-window = ttk.Window('flatly')
-window.title('My Weather')
+window = ttk.Window(themename='darkly')
+window.title('Global Weather')
 window.geometry('600x400')
+
+city = tk.StringVar(value='New York')
+unit = 'metric'
+
+ow_api_call = f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
+ow_api = requests.get(ow_api_call).json()
+
+data = {}
+data = update_data(ow_api)
+weather_image = get_weather_image(data)
 
 city_list = ['New York', 'London', 'Paris', 'Berlin', 'Tokyo', 'Melbourne',
              'Hong Kong', 'Sydney', 'Rio de Janeiro', 'Boston', 'Miami',
-             'Lisabon', 'Kairo', 'Istanbul', 'Dubai', 'Kabul', 'New Dehli',
+             'Lisabon', 'Kairo', 'Istanbul', 'Dubai', 'Kabul',
              'Bangkok', 'Kuala Lumpur', 'Jakarta', 'Sydney', 'Auckland', 'Lima',
              'Buenes Aires', 'Bogota', 'Havana', 'Chicago', 'Montreal', 'Vancouver',
              'Seattle', 'Mexico City', 'Las Vegas', 'Houston', 'Honolulu']
 
 # widgets
-combo_cities = ttk.Combobox(window)
+label_datetime = ttk.Label(window, text=data['datetime'], font=('Arial', 10), foreground='red')
+label_city = ttk.Label(window, text=f"{city.get()}, {data['country']}", font=('Arial', 24, 'bold'))
+combo_cities = ttk.Combobox(window, textvariable=city)
 combo_cities['values'] = sorted(city_list)
 
+label_lon = ttk.Label(window, text=f'{data['lon']:.2f}')
+label_lat = ttk.Label(window, text=f'{data['lat']:.2f}')
+
+label_weather_image = ttk.Label(window, image=weather_image)
+label_test = ttk.Label(window, text=f"{data}")
+
 # layout
+label_datetime.pack()
+label_city.pack()
 combo_cities.pack()
+label_lon.pack()
+label_lat.pack()
+label_test.pack()
+label_weather_image.pack()
 
 # events
 combo_cities.bind('<<ComboboxSelected>>', update_labels)
