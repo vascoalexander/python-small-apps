@@ -1,4 +1,6 @@
-# weather-app
+# a small app that shows the local weather, time and lon/lat of a specified
+# city. to run the code an api-key from openweathermap.org needs to be provided
+# save the api-key in a json file. DO NOT upload your api-key to a public site!
 import tkinter as tk
 from tkinter import ttk, messagebox
 import ttkbootstrap as ttk
@@ -14,6 +16,8 @@ with open('./weather-app/api.json', 'r') as fobj:
     API_key = json.load(fobj)['api_key']
 
 def wind_direction_to_compass(degree):
+    """Converts a metereological wind direction from degree to a compass
+    direction [wind direction is not implemented yet]"""
     directions = [
         "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", 
         "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
@@ -22,6 +26,8 @@ def wind_direction_to_compass(degree):
     return directions[index]
 
 def update_labels(event):
+    """When the city is changed all data stored in a dictonary is updated and the labels
+    and meters are updated accordingly"""
     response = update_api_data()
     if response.status_code == 200:
         ow_api = response.json()
@@ -45,11 +51,13 @@ def update_labels(event):
         return
 
 def update_api_data():
+    """When the city is changed: get the approbiate data from the open weather api"""
     ow_api_call = f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
     response = requests.get(ow_api_call)
     return response
 
 def update_data(ow_api):
+    """Updatge all data in the dictionary"""
     data['lon'] = ow_api['coord']['lon']
     data['lat'] = ow_api['coord']['lat']
     data['country'] = ow_api['sys']['country']
@@ -66,6 +74,8 @@ def update_data(ow_api):
     return data
 
 def get_datetime(api_response):
+    """With lon and lat location data provided we get the TZ and present the
+    local time in a human readable format"""
     tz_obj = TimezoneFinder()
     timezone = tz_obj.timezone_at(lng=data['lon'],lat=data['lat'])
     time = datetime.now(ZoneInfo(timezone))
@@ -73,6 +83,7 @@ def get_datetime(api_response):
     return timeformat_date
 
 def get_weather_image(data):
+    """Gets a weather image and updates the image object"""
     image_url = f"https://openweathermap.org/img/wn/{data['weather_icon']}@2x.png"
     image = urlopen(image_url)
     weather_image = ImageTk.PhotoImage(data=image.read())
