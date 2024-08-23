@@ -7,7 +7,8 @@ import json, requests
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from urllib.request import urlopen
-from PIL import ImageTk
+from PIL import ImageTk, Image
+Image.CUBIC = Image.BICUBIC
 
 with open('./weather-app/api.json', 'r') as fobj:
     API_key = json.load(fobj)['api_key']
@@ -23,11 +24,17 @@ def wind_direction_to_compass(degree):
 def update_labels(event):
     ow_api = update_api_data()
     data = update_data(ow_api)
-    label_test.configure(text=data)
     label_city.configure(text=f"{city.get()}, {data['country']}")
+    label_datetime.configure(text=data['datetime'])
+    label_temp.configure(text=f" | {data['temp']:.1f}°C")
     weather_image = get_weather_image(data)
     label_weather_image.configure(image=weather_image)
     label_weather_image.image = weather_image
+    label_location.configure(text=f'lon: {data['lon']:.2f} lat: {data['lat']:.2f}')
+    label_description.configure(text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}")
+    meter_temperature.configure(amountused=int(data['temp']))
+    meter_pressure.configure(amountused=int(data['pressure']))
+    meter_humidity.configure(amountused=int(data['humidity']))
 
 def update_api_data():
     ow_api_call = f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
@@ -66,7 +73,8 @@ def get_weather_image(data):
 # setup
 window = ttk.Window(themename='darkly')
 window.title('Global Weather')
-window.geometry('600x400')
+window.geometry('570x370')
+window.resizable(False,False)
 
 city = tk.StringVar(value='New York')
 unit = 'metric'
@@ -86,28 +94,109 @@ city_list = ['New York', 'London', 'Paris', 'Berlin', 'Tokyo', 'Melbourne',
              'Seattle', 'Mexico City', 'Las Vegas', 'Houston', 'Honolulu']
 
 # widgets
-label_datetime = ttk.Label(window, text=data['datetime'], font=('Arial', 10), foreground='red')
-label_city = ttk.Label(window, text=f"{city.get()}, {data['country']}", font=('Arial', 24, 'bold'))
-combo_cities = ttk.Combobox(window, textvariable=city)
-combo_cities['values'] = sorted(city_list)
+frame_main = ttk.Frame(window)
+frame_top = ttk.Frame(frame_main)
+frame_title = ttk.Frame(frame_main)
+frame_subtitle = ttk.Frame(frame_main)
+frame_meter = ttk.Frame(frame_main)
+frame_combo = ttk.Frame(frame_main)
 
-label_lon = ttk.Label(window, text=f'{data['lon']:.2f}')
-label_lat = ttk.Label(window, text=f'{data['lat']:.2f}')
+# title
+label_datetime = ttk.Label(
+    frame_title, 
+    text=data['datetime'], 
+    font=('Arial', 10, 'bold'), 
+    foreground='orange'
+)
+label_city = ttk.Label(
+    frame_title, 
+    text=f"{city.get()}, {data['country']}", 
+    font=('Arial', 24, 'bold')
+)
+label_temp = ttk.Label(
+    frame_title, 
+    text=f" | {data['temp']:.1f}°C", 
+    font=('Arial', 24)
+)
+label_location = ttk.Label(
+    frame_subtitle, 
+    text=f'lon: {data['lon']:.2f} lat: {data['lat']:.2f}', 
+    font=('Arial', 9), 
+    foreground='#B3B3B3'
+)
+label_description = ttk.Label(
+    frame_subtitle, 
+    text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}", 
+    font=('Arial', 12)
+)
 
 label_weather_image = ttk.Label(window, image=weather_image)
-label_test = ttk.Label(window, text=f"{data}")
+
+# meters
+meter_temperature = ttk.Meter(
+    frame_meter, 
+    metersize=160, 
+    subtext='Temperature', 
+    bootstyle='danger', 
+    textright='°C',
+    subtextfont=('Arial', 12), 
+    metertype='semi', 
+    amountused=int(data['temp']), 
+    amounttotal=50
+)
+
+meter_pressure = ttk.Meter(
+    frame_meter, 
+    metersize=160, 
+    subtext='Pressure', 
+    bootstyle='success', 
+    textright='hPa',
+    subtextfont=('Arial', 12), 
+    metertype='semi', 
+    amountused=int(data['pressure']), 
+    amounttotal=2000
+)
+
+meter_humidity = ttk.Meter(
+    frame_meter, 
+    metersize=160, 
+    subtext='Humidity',
+    bootstyle='info',
+    textright='%', 
+    subtextfont=('Arial', 12), 
+    metertype='semi', 
+    amountused=int(data['humidity']), 
+    amounttotal=100
+)
+
+# combobox
+combo_cities = ttk.Combobox(frame_combo, textvariable=city)
+combo_cities['values'] = sorted(city_list)
 
 # layout
-label_datetime.pack()
-label_city.pack()
-combo_cities.pack()
-label_lon.pack()
-label_lat.pack()
-label_test.pack()
-label_weather_image.pack()
+frame_main.pack(padx=20, pady=20)
 
+# frame_top.pack(anchor='sw')
+frame_title.pack(side='top', anchor='w', fill='x')
+label_datetime.grid(row=0, column=0, sticky='sw')
+label_city.grid(row=1, column=0, sticky='n')
+label_temp.grid(row=1, column=1, sticky='n')
+label_weather_image.place(x=440, y=20)
+
+frame_subtitle.pack(side='top', anchor='nw')
+label_location.grid(row=0, column=0, sticky='nw')
+label_description.grid(row=1, column=0, columnspan=2, sticky='nw')
+
+frame_meter.pack(pady=(12,16))
+meter_temperature.grid(row=0, column=0)
+meter_pressure.grid(row=0, column=1)
+meter_humidity.grid(row=0, column=2)
+
+frame_combo.pack()
+combo_cities.pack()
 # events
 combo_cities.bind('<<ComboboxSelected>>', update_labels)
+combo_cities.bind('<Return>', update_labels)
 
 # run
 window.mainloop()
