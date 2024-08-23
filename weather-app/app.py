@@ -22,23 +22,32 @@ def wind_direction_to_compass(degree):
     return directions[index]
 
 def update_labels(event):
-    ow_api = update_api_data()
-    data = update_data(ow_api)
-    label_city.configure(text=f"{city.get()}, {data['country']}")
-    label_datetime.configure(text=data['datetime'])
-    label_temp.configure(text=f" | {data['temp']:.1f}°C")
-    weather_image = get_weather_image(data)
-    label_weather_image.configure(image=weather_image)
-    label_weather_image.image = weather_image
-    label_location.configure(text=f'lon: {data['lon']:.2f} lat: {data['lat']:.2f}')
-    label_description.configure(text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}")
-    meter_temperature.configure(amountused=int(data['temp']))
-    meter_pressure.configure(amountused=int(data['pressure']))
-    meter_humidity.configure(amountused=int(data['humidity']))
+    response = update_api_data()
+    if response.status_code == 200:
+        ow_api = response.json()
+        data = update_data(ow_api)
+        label_city.configure(text=f"{city.get()}, {data['country']}")
+        label_datetime.configure(text=data['datetime'])
+        label_temp.configure(text=f" | {data['temp']:.1f}°C")
+        weather_image = get_weather_image(data)
+        label_weather_image.configure(image=weather_image)
+        label_weather_image.image = weather_image
+        label_location.configure(text=f'lon: {data['lon']:.2f} lat: {data['lat']:.2f}')
+        label_description.configure(text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}")
+        meter_temperature.configure(amountused=int(data['temp']))
+        meter_pressure.configure(amountused=int(data['pressure']))
+        meter_humidity.configure(amountused=int(data['humidity']))
+    else:
+        messagebox.showerror(
+            title='API Response Error', 
+            message=f'Something went wrong fetching the data for {city.get()}.\nServer responded with {response.status_code}.'
+        )
+        return
 
 def update_api_data():
     ow_api_call = f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
-    return requests.get(ow_api_call).json()
+    response = requests.get(ow_api_call)
+    return response
 
 def update_data(ow_api):
     data['lon'] = ow_api['coord']['lon']
@@ -67,11 +76,10 @@ def get_weather_image(data):
     image_url = f"https://openweathermap.org/img/wn/{data['weather_icon']}@2x.png"
     image = urlopen(image_url)
     weather_image = ImageTk.PhotoImage(data=image.read())
-    print(image_url)
     return weather_image
 
 # setup
-window = ttk.Window(themename='darkly')
+window = ttk.Window(themename='cyborg')
 window.title('Global Weather')
 window.geometry('570x370')
 window.resizable(False,False)
@@ -161,7 +169,7 @@ meter_humidity = ttk.Meter(
     frame_meter, 
     metersize=160, 
     subtext='Humidity',
-    bootstyle='info',
+    bootstyle='primary',
     textright='%', 
     subtextfont=('Arial', 12), 
     metertype='semi', 
