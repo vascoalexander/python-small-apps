@@ -15,3 +15,4 @@ tkinter to create GUI's.
 - [currency-converter](/currency-converter/)
 - [bmi-calculator](/bmi-calculator/)
 - [weather-app](/weather-app/)
+- [network-tool](/network-tool/)
