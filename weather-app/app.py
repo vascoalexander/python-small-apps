@@ -12,7 +12,7 @@ from urllib.request import urlopen
 from PIL import ImageTk, Image
 Image.CUBIC = Image.BICUBIC
 
-with open('./weather-app/api.json', 'r') as fobj:
+with open('./api.json', 'r') as fobj:
     API_key = json.load(fobj)['api_key']
 
 def wind_direction_to_compass(degree):

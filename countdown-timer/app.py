@@ -79,9 +79,9 @@ window.configure(bg="black")
 window.time_in_seconds = 0
 window.is_paused = False
 
-play_icon = tk.PhotoImage(file="./countdown-timer/icons/play.png")
-pause_icon = tk.PhotoImage(file="./countdown-timer/icons/pause.png")
-stop_icon = tk.PhotoImage(file="./countdown-timer/icons/stop.png")
+play_icon = tk.PhotoImage(file="./icons/play.png")
+pause_icon = tk.PhotoImage(file="./icons/pause.png")
+stop_icon = tk.PhotoImage(file="./icons/stop.png")
 
 label_time = tk.Label(window, bg="black", fg="#00FF00", text="00:00:00",
                       font=("Arial",48, "bold"))

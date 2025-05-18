@@ -88,8 +88,8 @@ window.config(background="#2b2b2b")
 window.images = []
 image_ext = (".jpeg", ".jpg", ".png", ".gif", ".bmp", ".webp")
 
-image_next = tk.PhotoImage(file='./image-viewer/icons/next.png')
-image_prev = tk.PhotoImage(file='./image-viewer/icons/prev.png')
+image_next = tk.PhotoImage(file='./icons/next.png')
+image_prev = tk.PhotoImage(file='./icons/prev.png')
 
 # widgets
 frame_bottom = tk.Frame(window, bg="#2b2b2b")

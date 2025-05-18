@@ -66,8 +66,8 @@ window.geometry("800x950")
 window.title("PDF Viewer")
 doc = []
 
-image_next = tk.PhotoImage(file='./pdf-viewer/icons/next.png')
-image_prev = tk.PhotoImage(file='./pdf-viewer/icons/prev.png')
+image_next = tk.PhotoImage(file='./icons/next.png')
+image_prev = tk.PhotoImage(file='./icons/prev.png')
 
 # widgets
 frame_bottom = ttk.Frame(window)
