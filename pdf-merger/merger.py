@@ -2,7 +2,7 @@ import os
 import re
 from tkinter import Tk, messagebox
 
-import PyPDF2
+from pypdf import PdfReader, PdfWriter
 
 
 def sorted_nicely(file_list):
@@ -16,29 +16,36 @@ def sorted_nicely(file_list):
 
 def merge_pdf(path, filename="combined"):
     """Merges PDF files in the specified directory in a sorted order."""
-    merger = PyPDF2.PdfMerger()
-
-    if os.path.exists(path):
-        pdf_files = [file for file in os.listdir(path) if file.endswith(".pdf")]
-        pdf_files = sorted_nicely(pdf_files)  # Sort alphabetically and numerically
-
-        if pdf_files:
-            for file in pdf_files:
-                full_path = os.path.join(path, file)
-                merger.append(full_path)
-
-            filename = filename.strip() or "combined"
-            output_path = os.path.join(path, filename + ".pdf")
-            merger.write(output_path)
-            merger.close()
-
-            messagebox.showinfo(
-                title="PDF Merger", message=f"Success. Datei gespeichert unter {output_path}"
-            )
-        else:
-            messagebox.showwarning(title="PDF Merger", message="No PDF files found to merge")
-    else:
+    if not os.path.exists(path):
         messagebox.showerror(title="PDF Merger", message="The specified path does not exist!")
+        return
+
+    # Alle PDFs im Verzeichnis finden und sortieren
+    pdf_files = [f for f in os.listdir(path) if f.lower().endswith(".pdf")]
+    pdf_files = sorted_nicely(pdf_files)
+
+    if not pdf_files:
+        messagebox.showwarning(title="PDF Merger", message="No PDF files found to merge")
+        return
+
+    writer = PdfWriter()
+
+    # Seiten aus jeder Datei hinzufügen
+    for pdf in pdf_files:
+        full_path = os.path.join(path, pdf)
+        reader = PdfReader(full_path)
+        for page in reader.pages:
+            writer.add_page(page)
+
+    # Ausgabedatei schreiben
+    filename = filename.strip() or "combined"
+    output_path = os.path.join(path, filename + ".pdf")
+    with open(output_path, "wb") as out_f:
+        writer.write(out_f)
+
+    messagebox.showinfo(
+        title="PDF Merger", message=f"Success. Datei gespeichert unter {output_path}"
+    )
 
 
 if __name__ == "__main__":
