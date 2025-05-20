@@ -1,29 +1,48 @@
 # a small app that shows the local weather, time and lon/lat of a specified
 # city. to run the code an api-key from openweathermap.org needs to be provided
 # save the api-key in a json file. DO NOT upload your api-key to a public site!
+import json
 import tkinter as tk
-from tkinter import ttk, messagebox
-import ttkbootstrap as ttk
-from timezonefinder import TimezoneFinder
-import json, requests
 from datetime import datetime
-from zoneinfo import ZoneInfo
+from tkinter import messagebox
 from urllib.request import urlopen
-from PIL import ImageTk, Image
+from zoneinfo import ZoneInfo
+
+import requests
+import ttkbootstrap as ttk
+from PIL import Image, ImageTk
+from timezonefinder import TimezoneFinder
+
 Image.CUBIC = Image.BICUBIC
 
-with open('./api.json', 'r') as fobj:
-    API_key = json.load(fobj)['api_key']
+with open("./api.json") as fobj:
+    API_key = json.load(fobj)["api_key"]
+
 
 def wind_direction_to_compass(degree):
     """Converts a metereological wind direction from degree to a compass
     direction [wind direction is not implemented yet]"""
     directions = [
-        "N", "NNE", "NE", "ENE", "E", "ESE", "SE", "SSE", 
-        "S", "SSW", "SW", "WSW", "W", "WNW", "NW", "NNW"
+        "N",
+        "NNE",
+        "NE",
+        "ENE",
+        "E",
+        "ESE",
+        "SE",
+        "SSE",
+        "S",
+        "SSW",
+        "SW",
+        "WSW",
+        "W",
+        "WNW",
+        "NW",
+        "NNW",
     ]
     index = round(degree / 22.5) % 16
     return directions[index]
+
 
 def update_labels(event):
     """When the city is changed all data stored in a dictonary is updated and the labels
@@ -33,22 +52,25 @@ def update_labels(event):
         ow_api = response.json()
         data = update_data(ow_api)
         label_city.configure(text=f"{city.get()}, {data['country']}")
-        label_datetime.configure(text=data['datetime'])
+        label_datetime.configure(text=data["datetime"])
         label_temp.configure(text=f" | {data['temp']:.1f}°C")
         weather_image = get_weather_image(data)
         label_weather_image.configure(image=weather_image)
         label_weather_image.image = weather_image
-        label_location.configure(text=f'lon: {data['lon']:.2f} lat: {data['lat']:.2f}')
-        label_description.configure(text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}")
-        meter_temperature.configure(amountused=int(data['temp']))
-        meter_pressure.configure(amountused=int(data['pressure']))
-        meter_humidity.configure(amountused=int(data['humidity']))
+        label_location.configure(text=f"lon: {data['lon']:.2f} lat: {data['lat']:.2f}")
+        label_description.configure(
+            text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}"
+        )
+        meter_temperature.configure(amountused=int(data["temp"]))
+        meter_pressure.configure(amountused=int(data["pressure"]))
+        meter_humidity.configure(amountused=int(data["humidity"]))
     else:
         messagebox.showerror(
-            title='API Response Error', 
-            message=f'Something went wrong fetching the data for {city.get()}.\nServer responded with {response.status_code}.'
+            title="API Response Error",
+            message=f"Something went wrong fetching the data for {city.get()}.\nServer responded with {response.status_code}.",
         )
         return
+
 
 def update_api_data():
     """When the city is changed: get the approbiate data from the open weather api"""
@@ -56,31 +78,34 @@ def update_api_data():
     response = requests.get(ow_api_call)
     return response
 
+
 def update_data(ow_api):
     """Updatge all data in the dictionary"""
-    data['lon'] = ow_api['coord']['lon']
-    data['lat'] = ow_api['coord']['lat']
-    data['country'] = ow_api['sys']['country']
-    data['datetime'] = get_datetime(ow_api)
-    data['weather_id'] = ow_api['weather'][0]['id']
-    data['weather_desc'] = ow_api['weather'][0]['description']
-    data['weather_icon'] = ow_api['weather'][0]['icon']
-    data['temp'] = ow_api['main']['temp']
-    data['feels_like'] = ow_api['main']['feels_like']
-    data['pressure'] = ow_api['main']['pressure']
-    data['humidity'] = ow_api['main']['humidity']
-    data['wind_speed'] = ow_api['wind']['speed']
-    data['wind_direction'] = wind_direction_to_compass(ow_api['wind']['deg'])
+    data["lon"] = ow_api["coord"]["lon"]
+    data["lat"] = ow_api["coord"]["lat"]
+    data["country"] = ow_api["sys"]["country"]
+    data["datetime"] = get_datetime(ow_api)
+    data["weather_id"] = ow_api["weather"][0]["id"]
+    data["weather_desc"] = ow_api["weather"][0]["description"]
+    data["weather_icon"] = ow_api["weather"][0]["icon"]
+    data["temp"] = ow_api["main"]["temp"]
+    data["feels_like"] = ow_api["main"]["feels_like"]
+    data["pressure"] = ow_api["main"]["pressure"]
+    data["humidity"] = ow_api["main"]["humidity"]
+    data["wind_speed"] = ow_api["wind"]["speed"]
+    data["wind_direction"] = wind_direction_to_compass(ow_api["wind"]["deg"])
     return data
+
 
 def get_datetime(api_response):
     """With lon and lat location data provided we get the TZ and present the
     local time in a human readable format"""
     tz_obj = TimezoneFinder()
-    timezone = tz_obj.timezone_at(lng=data['lon'],lat=data['lat'])
+    timezone = tz_obj.timezone_at(lng=data["lon"], lat=data["lat"])
     time = datetime.now(ZoneInfo(timezone))
     timeformat_date = time.strftime("%b %d, %H:%M (%Z)")
     return timeformat_date
+
 
 def get_weather_image(data):
     """Gets a weather image and updates the image object"""
@@ -89,28 +114,60 @@ def get_weather_image(data):
     weather_image = ImageTk.PhotoImage(data=image.read())
     return weather_image
 
+
 # setup
-window = ttk.Window(themename='cyborg')
-window.title('Global Weather')
-window.geometry('570x370')
-window.resizable(False,False)
+window = ttk.Window(themename="cyborg")
+window.title("Global Weather")
+window.geometry("570x370")
+window.resizable(False, False)
 
-city = tk.StringVar(value='New York')
-unit = 'metric'
+city = tk.StringVar(value="New York")
+unit = "metric"
 
-ow_api_call = f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
+ow_api_call = (
+    f"https://api.openweathermap.org/data/2.5/weather?q={city.get()}&appid={API_key}&units={unit}"
+)
 ow_api = requests.get(ow_api_call).json()
 
 data = {}
 data = update_data(ow_api)
 weather_image = get_weather_image(data)
 
-city_list = ['New York', 'London', 'Paris', 'Berlin', 'Tokyo', 'Melbourne',
-             'Hong Kong', 'Sydney', 'Rio de Janeiro', 'Boston', 'Miami',
-             'Lisabon', 'Kairo', 'Istanbul', 'Dubai', 'Kabul',
-             'Bangkok', 'Kuala Lumpur', 'Jakarta', 'Sydney', 'Auckland', 'Lima',
-             'Buenes Aires', 'Bogota', 'Havana', 'Chicago', 'Montreal', 'Vancouver',
-             'Seattle', 'Mexico City', 'Las Vegas', 'Houston', 'Honolulu']
+city_list = [
+    "New York",
+    "London",
+    "Paris",
+    "Berlin",
+    "Tokyo",
+    "Melbourne",
+    "Hong Kong",
+    "Sydney",
+    "Rio de Janeiro",
+    "Boston",
+    "Miami",
+    "Lisabon",
+    "Kairo",
+    "Istanbul",
+    "Dubai",
+    "Kabul",
+    "Bangkok",
+    "Kuala Lumpur",
+    "Jakarta",
+    "Sydney",
+    "Auckland",
+    "Lima",
+    "Buenes Aires",
+    "Bogota",
+    "Havana",
+    "Chicago",
+    "Montreal",
+    "Vancouver",
+    "Seattle",
+    "Mexico City",
+    "Las Vegas",
+    "Houston",
+    "Honolulu",
+]
 
 # widgets
 frame_main = ttk.Frame(window)
@@ -122,91 +179,82 @@ frame_combo = ttk.Frame(frame_main)
 
 # title
 label_datetime = ttk.Label(
-    frame_title, 
-    text=data['datetime'], 
-    font=('Arial', 10, 'bold'), 
-    foreground='orange'
+    frame_title, text=data["datetime"], font=("Arial", 10, "bold"), foreground="orange"
 )
 label_city = ttk.Label(
-    frame_title, 
-    text=f"{city.get()}, {data['country']}", 
-    font=('Arial', 24, 'bold')
+    frame_title, text=f"{city.get()}, {data['country']}", font=("Arial", 24, "bold")
 )
-label_temp = ttk.Label(
-    frame_title, 
-    text=f" | {data['temp']:.1f}°C", 
-    font=('Arial', 24)
-)
+label_temp = ttk.Label(frame_title, text=f" | {data['temp']:.1f}°C", font=("Arial", 24))
 label_location = ttk.Label(
-    frame_subtitle, 
-    text=f'lon: {data['lon']:.2f} lat: {data['lat']:.2f}', 
-    font=('Arial', 9), 
-    foreground='#B3B3B3'
+    frame_subtitle,
+    text=f"lon: {data['lon']:.2f} lat: {data['lat']:.2f}",
+    font=("Arial", 9),
+    foreground="#B3B3B3",
 )
 label_description = ttk.Label(
-    frame_subtitle, 
-    text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}", 
-    font=('Arial', 12)
+    frame_subtitle,
+    text=f"Feels like {data['feels_like']:.1f}°C. {data['weather_desc'].capitalize()}",
+    font=("Arial", 12),
 )
 
 label_weather_image = ttk.Label(window, image=weather_image)
 
 # meters
 meter_temperature = ttk.Meter(
-    frame_meter, 
-    metersize=160, 
-    subtext='Temperature', 
-    bootstyle='danger', 
-    textright='°C',
-    subtextfont=('Arial', 12), 
-    metertype='semi', 
-    amountused=int(data['temp']), 
-    amounttotal=50
+    frame_meter,
+    metersize=160,
+    subtext="Temperature",
+    bootstyle="danger",
+    textright="°C",
+    subtextfont=("Arial", 12),
+    metertype="semi",
+    amountused=int(data["temp"]),
+    amounttotal=50,
 )
 
 meter_pressure = ttk.Meter(
-    frame_meter, 
-    metersize=160, 
-    subtext='Pressure', 
-    bootstyle='success', 
-    textright='hPa',
-    subtextfont=('Arial', 12), 
-    metertype='semi', 
-    amountused=int(data['pressure']), 
-    amounttotal=2000
+    frame_meter,
+    metersize=160,
+    subtext="Pressure",
+    bootstyle="success",
+    textright="hPa",
+    subtextfont=("Arial", 12),
+    metertype="semi",
+    amountused=int(data["pressure"]),
+    amounttotal=2000,
 )
 
 meter_humidity = ttk.Meter(
-    frame_meter, 
-    metersize=160, 
-    subtext='Humidity',
-    bootstyle='primary',
-    textright='%', 
-    subtextfont=('Arial', 12), 
-    metertype='semi', 
-    amountused=int(data['humidity']), 
-    amounttotal=100
+    frame_meter,
+    metersize=160,
+    subtext="Humidity",
+    bootstyle="primary",
+    textright="%",
+    subtextfont=("Arial", 12),
+    metertype="semi",
+    amountused=int(data["humidity"]),
+    amounttotal=100,
 )
 
 # combobox
 combo_cities = ttk.Combobox(frame_combo, textvariable=city)
-combo_cities['values'] = sorted(city_list)
+combo_cities["values"] = sorted(city_list)
 
 # layout
 frame_main.pack(padx=20, pady=20)
 
 # frame_top.pack(anchor='sw')
-frame_title.pack(side='top', anchor='w', fill='x')
-label_datetime.grid(row=0, column=0, sticky='sw')
-label_city.grid(row=1, column=0, sticky='n')
-label_temp.grid(row=1, column=1, sticky='n')
+frame_title.pack(side="top", anchor="w", fill="x")
+label_datetime.grid(row=0, column=0, sticky="sw")
+label_city.grid(row=1, column=0, sticky="n")
+label_temp.grid(row=1, column=1, sticky="n")
 label_weather_image.place(x=440, y=20)
 
-frame_subtitle.pack(side='top', anchor='nw')
-label_location.grid(row=0, column=0, sticky='nw')
-label_description.grid(row=1, column=0, columnspan=2, sticky='nw')
+frame_subtitle.pack(side="top", anchor="nw")
+label_location.grid(row=0, column=0, sticky="nw")
+label_description.grid(row=1, column=0, columnspan=2, sticky="nw")
 
-frame_meter.pack(pady=(12,16))
+frame_meter.pack(pady=(12, 16))
 meter_temperature.grid(row=0, column=0)
 meter_pressure.grid(row=0, column=1)
 meter_humidity.grid(row=0, column=2)
@@ -214,8 +262,8 @@ meter_humidity.grid(row=0, column=2)
 frame_combo.pack()
 combo_cities.pack()
 # events
-combo_cities.bind('<<ComboboxSelected>>', update_labels)
-combo_cities.bind('<Return>', update_labels)
+combo_cities.bind("<<ComboboxSelected>>", update_labels)
+combo_cities.bind("<Return>", update_labels)
 
 # run
 window.mainloop()

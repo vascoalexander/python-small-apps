@@ -21,10 +21,10 @@ while True:
         elif player == computer:
             print("Tie!")
             break
-    
+
     play_again = input("Play again?(yes/no): ").lower()
 
-    if play_again != 'yes':
+    if play_again != "yes":
         break
 
 print("Bye")

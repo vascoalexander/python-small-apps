@@ -40,58 +40,61 @@ cidr_to_subnet = {
     "29": "255.255.255.248",
     "30": "255.255.255.252",
     "31": "255.255.255.254",
-    "32": "255.255.255.255"
+    "32": "255.255.255.255",
 }
+
 
 def cidr_to_sub(sub_mask):
     """Lookup the Subnetmask for a given prefix"""
-    subnet_mask = cidr_to_subnet.get(sub_mask, '0.0.0.0')
+    subnet_mask = cidr_to_subnet.get(sub_mask, "0.0.0.0")
     return subnet_mask
+
 
 def get_network(ip_adress, sub_mask):
     """Get a Network object from ip and subnetmask"""
     global network
-    if sub_mask.isdigit():
-        subnet_mask = cidr_to_subnet.get(sub_mask)
-    else:
-        subnet_mask = sub_mask
+    subnet_mask = cidr_to_subnet.get(sub_mask) if sub_mask.isdigit() else sub_mask
+
     network = ipaddress.IPv4Network(f"{ip_adress}/{subnet_mask}", strict=False)
     return network
+
 
 def net_ip_get(network):
     """Get the netip"""
     network_ip = network.network_address
     return network_ip
 
+
 def broadcast_get(network):
     """Get the Broadcast IP"""
     broadcast = network.broadcast_address
     return broadcast
+
 
 def first_host_get(network):
     """Get the first available host in the network"""
     first_host = network[1] if network.prefixlen < 31 else network[0]
     return first_host
 
+
 def last_host_get(network):
     """Get the last available host in the network"""
     last_host = network[-2] if network.prefixlen < 31 else network[-1]
     return last_host
+
 
 def possible_hosts_get(network):
     """Get the max number of hosts in a network"""
     possible_hosts = network.num_addresses - 2 if network.prefixlen < 31 else network.num_addresses
     return possible_hosts
 
-if __name__ == '__main__':
-    ip_adress = input('Enter IP-Adress: ')
-    sub_mask = input('Enter Submask Adress: ')
+
+if __name__ == "__main__":
+    ip_adress = input("Enter IP-Adress: ")
+    sub_mask = input("Enter Submask Adress: ")
     network = get_network(ip_adress, sub_mask)
-    print(f'Netzwerk-Adresse: {net_ip_get(network)}')
-    print(f'Broadcast-IP: {broadcast_get(network)}')
-    print(f'First Host: {first_host_get(network)}')
-    print(f'Last Host: {last_host_get(network)}')
-    print(f'Possible Hosts: {possible_hosts_get(network)}')
-
-
-
+    print(f"Netzwerk-Adresse: {net_ip_get(network)}")
+    print(f"Broadcast-IP: {broadcast_get(network)}")
+    print(f"First Host: {first_host_get(network)}")
+    print(f"Last Host: {last_host_get(network)}")
+    print(f"Possible Hosts: {possible_hosts_get(network)}")
